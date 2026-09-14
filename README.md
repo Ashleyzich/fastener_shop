@@ -25,7 +25,7 @@ A comprehensive management system for fastener shops.
 ## Installation
 
 1. Clone repo
-   git clone https://github.com/YOUR_USERNAME/fastener-shop.git
+   git clone https://github.com/Ashleyzich/fastener-shop.git
 
 2. Create venv
    python -m venv venv
