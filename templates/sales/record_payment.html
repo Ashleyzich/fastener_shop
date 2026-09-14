@@ -1,0 +1,127 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Record Payment{% endblock %}
+{% block page_title %}Record Payment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">RECORD PAYMENT</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Select Sale *</label>
+                        <select name="sale_id" id="sale-select" class="form-select" required onchange="updateBalance()">
+                            <option value="">Select credit sale...</option>
+                            {% for sale in credit_sales %}
+                            <option value="{{ sale.id }}">
+                                {{ sale.invoice_number }} - {{ sale.customer.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id="balance-info" class="alert alert-info" style="display: none;">
+                        <strong>Remaining Balance:</strong> <span id="remaining-balance">$0.00</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Amount *</label>
+                        <input type="number" name="amount" id="payment-amount" class="form-control" min="0.01" step="0.01" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select name="payment_method" class="form-select">
+                            <option value="CASH">Cash</option>
+                            <option value="ECOCASH">Ecocash</option>
+                            <option value="SWIPE">Card</option>
+                            <option value="BANK_TRANSFER">Bank Transfer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Reference (Optional)</label>
+                        <input type="text" name="reference" class="form-control" placeholder="Transaction reference">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea name="notes" class="form-control" rows="2"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-check"></i> Record Payment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">CUSTOMERS WITH OUTSTANDING BALANCES</h6>
+                
+                {% if customers_with_balance %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Outstanding</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customers_with_balance %}
+                            <tr>
+                                <td><strong>{{ customer.name }}</strong></td>
+                                <td>{{ customer.phone|default:"-" }}</td>
+                                <td class="text-danger fw-bold">${{ customer.outstanding_balance|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'customer_detail' customer.pk %}" class="btn btn-sm btn-light">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h6>No Outstanding Balances</h6>
+                    <p class="text-muted">All customers are paid up!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateBalance() {
+    const saleId = document.getElementById('sale-select').value;
+    const balanceInfo = document.getElementById('balance-info');
+    
+    if (!saleId) {
+        balanceInfo.style.display = 'none';
+        return;
+    }
+    
+    fetch('/sales/payments/sale/' + saleId + '/balance/')
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('remaining-balance').textContent = '$' + data.remaining.toFixed(2);
+        document.getElementById('payment-amount').max = data.remaining;
+        balanceInfo.style.display = 'block';
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Receipt - {{ sale.invoice_number }}</title>
+    <style>
+        @media print {
+            .no-print { display: none; }
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .receipt-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .receipt-header p {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .receipt-items {
+            margin: 10px 0;
+        }
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .receipt-total {
+            border-top: 1px dashed #000;
+            margin-top: 10px;
+            padding-top: 10px;
+            text-align: right;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .receipt-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .btn-print {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button class="btn-print no-print" onclick="window.print()">🖨 Print Receipt</button>
+    
+    <div class="receipt-header">
+        <h2>FASTENER SHOP</h2>
+        <p>123 Hardware Street</p>
+        <p>Tel: 123-456-7890</p>
+    </div>
+    
+    <div class="receipt-info">
+        <p><strong>Receipt:</strong> {{ sale.invoice_number }}</p>
+        <p><strong>Date:</strong> {{ sale.created_at|date:"Y-m-d H:i" }}</p>
+        <p><strong>Customer:</strong> {{ sale.customer.name }}</p>
+        <p><strong>Payment:</strong> {{ sale.payment_method }}</p>
+    </div>
+    
+    <div class="receipt-items">
+        {% for item in items %}
+        <div class="receipt-item">
+            <span>{{ item.product.name }} x{{ item.quantity }}</span>
+            <span>${{ item.total_price|floatformat:2 }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="receipt-total">
+        TOTAL: ${{ sale.total_amount|floatformat:2 }}
+    </div>
+    
+    <div class="receipt-footer">
+        <p>Thank you for your business!</p>
+    </div>
+</body>
+</html>

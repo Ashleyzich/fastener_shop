@@ -1,0 +1,58 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Locations{% endblock %}
+{% block page_title %}Locations{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <span class="badge bg-primary">{{ locations|length }} locations</span>
+    <a href="{% url 'admin:core_location_add' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Location
+    </a>
+</div>
+
+<div class="row">
+    {% for location in locations %}
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100" style="border-radius: 15px;">
+            <div class="card-body">
+                <h2 class="mb-2" style="color: #6366f1;">{{ location.name }}</h2>
+                {% if location.description %}
+                <p class="text-muted mb-2" style="font-size: 13px;">{{ location.description }}</p>
+                {% endif %}
+                <hr>
+                <div class="d-flex justify-content-around">
+                    <div>
+                        <h6 class="mb-0">{{ location.product_count|default:0 }}</h6>
+                        <small class="text-muted">Products</small>
+                    </div>
+                    {% if location.total_quantity %}
+                    <div>
+                        <h6 class="mb-0">{{ location.total_quantity }}</h6>
+                        <small class="text-muted">Quantity</small>
+                    </div>
+                    {% endif %}
+                    {% if location.stock_value %}
+                    <div>
+                        <h6 class="mb-0">${{ location.stock_value|floatformat:2 }}</h6>
+                        <small class="text-muted">Value</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-map-marker-alt fa-4x text-muted mb-3"></i>
+                <h5>No Locations</h5>
+                <p class="text-muted">Add locations to organize inventory</p>
+                <a href="{% url 'admin:core_location_add' %}" class="btn btn-primary">Add Location</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

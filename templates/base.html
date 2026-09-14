@@ -1,0 +1,457 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fastener Shop Management{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-6: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            --gradient-7: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --gradient-8: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #f1f5f9;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h4 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 20px;
+        }
+        
+        .sidebar-header p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .sidebar-nav {
+            padding: 15px 0;
+        }
+        
+        .sidebar-nav .nav-item {
+            margin: 2px 10px;
+        }
+        
+        .sidebar-nav .nav-link {
+            color: #cbd5e1;
+            padding: 12px 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .sidebar-nav .nav-link.active {
+            background: var(--gradient-1);
+            color: white;
+        }
+        
+        .sidebar-nav .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+            text-align: center;
+        }
+        
+        .sidebar-section {
+            padding: 10px 25px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #64748b;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .top-bar h3 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 22px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        /* Enhanced Cards */
+        .card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 20px 25px;
+            border-radius: 18px 18px 0 0 !important;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        /* Gradient Stat Cards */
+        .stat-card {
+            border-radius: 18px;
+            padding: 25px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+            border: none;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card .icon {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 40px;
+            opacity: 0.25;
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+        
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        
+        .stat-card .sub {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .gradient-1 { background: var(--gradient-1); }
+        .gradient-2 { background: var(--gradient-2); }
+        .gradient-3 { background: var(--gradient-3); }
+        .gradient-4 { background: var(--gradient-4); color: #1a202c !important; }
+        .gradient-5 { background: var(--gradient-5); color: #1a202c !important; }
+        .gradient-6 { background: var(--gradient-6); }
+        .gradient-7 { background: var(--gradient-7); color: #1a202c !important; }
+        .gradient-8 { background: var(--gradient-8); color: #1a202c !important; }
+        
+        /* Buttons */
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-1);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-success {
+            background: var(--gradient-4);
+            border: none;
+            color: #1a202c;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* Tables */
+        .table thead th {
+            border-bottom: 2px solid #e2e8f0;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px;
+        }
+        
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        
+        /* Forms */
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Alert */
+        .alert {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-tools"></i> Fastener Shop</h4>
+            <p>Management System</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="sidebar-section">Main</div>
+            <div class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'pos' %}active{% endif %}" href="{% url 'pos' %}">
+                    <i class="fas fa-cash-register"></i> Point of Sale
+                </a>
+            </div>
+            
+            <div class="sidebar-section mt-3">Inventory</div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'product_list' %}">
+                    <i class="fas fa-boxes"></i> Products
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'category' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'category_list' %}">
+                    <i class="fas fa-tags"></i> Categories
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'location' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'location_list' %}">
+                    <i class="fas fa-map-marker-alt"></i> Locations
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'stock_adjustment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'stock_adjustment' %}">
+                    <i class="fas fa-balance-scale"></i> Stock Adjustment
+                </a>
+            </div>
+            
+            <div class="sidebar-section mt-3">Sales</div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'sale_list' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'sale_list' %}">
+                    <i class="fas fa-shopping-cart"></i> Sales History
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'payment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'payment_list' %}">
+                    <i class="fas fa-money-bill"></i> Payments
+                </a>
+            </div>            <div class="nav-item">
+                <a class="nav-link {% if 'customer' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'customer_list' %}">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+            </div>
+            
+            <div class="sidebar-section mt-3">Purchasing</div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'supplier' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_list' %}">
+                    <i class="fas fa-truck"></i> Suppliers
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'purchase' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'purchase_list' %}">
+                    <i class="fas fa-file-invoice"></i> Purchase Orders
+                </a>
+            </div>
+            
+            <div class="sidebar-section mt-3">Reports</div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'sales_report' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'sales_report' %}">
+                    <i class="fas fa-chart-bar"></i> Sales Report
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'inventory_report' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'inventory_report' %}">
+                    <i class="fas fa-boxes"></i> Inventory Report
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link {% if 'profit_report' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'profit_report' %}">
+                    <i class="fas fa-chart-pie"></i> Profit Report
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="top-bar">
+            <h3>{% block page_title %}{% endblock %}</h3>
+            <div class="user-menu d-flex align-items-center gap-3">
+                <span class="text-muted">{{ user.get_full_name|default:user.username }}</span>
+                <div class="dropdown">
+                    <div class="user-avatar dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer;">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">
+                            <i class="fas fa-id-badge"></i> Profile
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'user_list' %}">
+                            <i class="fas fa-users-cog"></i> User Management
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'backup_list' %}">
+                            <i class="fas fa-database"></i> Backups
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'logout' %}" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    {% endif %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

@@ -1,0 +1,124 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Suppliers{% endblock %}
+{% block page_title %}Suppliers{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{% url 'supplier_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Supplier
+    </a>
+</div>
+
+<!-- Gradient Stats -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stat-card gradient-1">
+            <i class="fas fa-truck icon"></i>
+            <div class="label">Total Suppliers</div>
+            <div class="value">{{ total_suppliers }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card gradient-4">
+            <i class="fas fa-check-circle icon"></i>
+            <div class="label">Active</div>
+            <div class="value">{{ active_suppliers }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card gradient-2">
+            <i class="fas fa-money-bill icon"></i>
+            <div class="label">Outstanding</div>
+            <div class="value">${{ total_outstanding|floatformat:2 }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Search suppliers..." value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check mt-2">
+                    <input type="checkbox" name="active" id="active" class="form-check-input" {% if request.GET.active %}checked{% endif %}>
+                    <label for="active" class="form-check-label">Active Only</label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Suppliers Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="padding: 18px;">Supplier</th>
+                        <th>Contact</th>
+                        <th>Phone</th>
+                        <th>Payment Terms</th>
+                        <th>Outstanding</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in suppliers %}
+                    <tr>
+                        <td style="padding: 18px;">
+                            <a href="{% url 'supplier_detail' supplier.pk %}" class="fw-bold text-decoration-none">
+                                {{ supplier.name }}
+                            </a>
+                            {% if supplier.company_name %}
+                            <br><small class="text-muted">{{ supplier.company_name }}</small>
+                            {% endif %}
+                        </td>
+                        <td>{{ supplier.contact_person|default:"-" }}</td>
+                        <td>{{ supplier.phone|default:"-" }}</td>
+                        <td>{{ supplier.payment_terms|default:"-" }}</td>
+                        <td>
+                            {% if supplier.outstanding_balance > 0 %}
+                            <span class="text-danger fw-bold">${{ supplier.outstanding_balance|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="text-success">$0.00</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if supplier.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'supplier_detail' supplier.pk %}" class="btn btn-sm btn-light"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'supplier_update' supplier.pk %}" class="btn btn-sm btn-light"><i class="fas fa-edit"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fas fa-truck fa-4x text-muted mb-3"></i>
+                            <h5>No Suppliers Found</h5>
+                            <a href="{% url 'supplier_create' %}" class="btn btn-primary mt-2">Add Supplier</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

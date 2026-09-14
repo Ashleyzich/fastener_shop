@@ -1,0 +1,141 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Low Stock Alert -->
+{% if low_stock_count > 0 %}
+<div class="alert alert-warning alert-dismissible fade show mb-4" style="border-left: 5px solid #f59e0b;">
+    <strong><i class="fas fa-exclamation-triangle"></i> Low Stock Alert!</strong> 
+    {{ low_stock_count }} product(s) low. 
+    <a href="{% url 'stock_adjustment' %}" class="alert-link">View →</a>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<!-- Gradient Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card gradient-1">
+            <i class="fas fa-calendar-day icon"></i>
+            <div class="label">Today's Sales</div>
+            <div class="value">${{ today_sales.total|floatformat:2|default:"0.00" }}</div>
+            <div class="sub">{{ today_sales.count|default:0 }} transactions</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-2">
+            <i class="fas fa-chart-line icon"></i>
+            <div class="label">Monthly Revenue</div>
+            <div class="value">${{ monthly_sales.total|floatformat:2|default:"0.00" }}</div>
+            <div class="sub">{{ monthly_sales.count|default:0 }} transactions</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-3">
+            <i class="fas fa-boxes icon"></i>
+            <div class="label">Stock Value</div>
+            <div class="value">${{ stock_value|floatformat:2|default:"0.00" }}</div>
+            <div class="sub">{{ total_products }} products</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-5">
+            <i class="fas fa-exclamation-triangle icon"></i>
+            <div class="label">Low Stock</div>
+            <div class="value">{{ low_stock_count }}</div>
+            <div class="sub">{{ out_of_stock }} out of stock</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <span><i class="fas fa-receipt" style="color: #6366f1;"></i> Recent Sales</span>
+                <a href="{% url 'sale_list' %}" class="btn btn-sm btn-light">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th class="text-end">Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in recent_sales %}
+                            <tr>
+                                <td><strong>{{ sale.invoice_number }}</strong></td>
+                                <td>{{ sale.customer.name }}</td>
+                                <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
+                                <td class="text-end fw-bold">${{ sale.total_amount|floatformat:2 }}</td>
+                                <td><span class="badge bg-success">{{ sale.status }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                    <p>No sales yet</p>
+                                    <a href="{% url 'pos' %}" class="btn btn-primary">Make First Sale</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <span><i class="fas fa-bolt" style="color: #f59e0b;"></i> Quick Actions</span>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'pos' %}" class="btn btn-success w-100 mb-2">
+                    <i class="fas fa-cash-register"></i> New Sale
+                </a>
+                <a href="{% url 'stock_adjustment' %}" class="btn btn-warning w-100 mb-2">
+                    <i class="fas fa-balance-scale"></i> Stock Adjustment
+                </a>
+                <a href="{% url 'product_list' %}" class="btn btn-primary w-100 mb-2">
+                    <i class="fas fa-boxes"></i> Products
+                </a>
+                <a href="{% url 'customer_list' %}" class="btn btn-info w-100">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+            </div>
+        </div>
+        
+        {% if top_products %}
+        <div class="card">
+            <div class="card-header">
+                <span><i class="fas fa-trophy" style="color: #10b981;"></i> Top Products</span>
+            </div>
+            <div class="card-body">
+                {% for product in top_products %}
+                <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                    <div>
+                        <strong>{{ product.product__name }}</strong>
+                        <br>
+                        <small class="text-muted">{{ product.product__diameter }} {{ product.product__length }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary">{{ product.total_qty }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

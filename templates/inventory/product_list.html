@@ -1,0 +1,173 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <span class="badge bg-primary">{{ total_products }} products</span>
+        <span class="badge bg-success ms-2">${{ total_stock_value|floatformat:2 }} stock value</span>
+    </div>
+    <a href="{% url 'admin:inventory_product_add' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Product
+    </a>
+</div>
+
+<!-- Search & Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="diameter" class="form-select">
+                    <option value="">All Diameters</option>
+                    {% for d in diameters %}
+                    <option value="{{ d }}" {% if selected_diameter == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="location" class="form-select">
+                    <option value="">All Locations</option>
+                    {% for loc in locations %}
+                    <option value="{{ loc.id }}" {% if selected_location == loc.id|stringformat:"s" %}selected{% endif %}>
+                        {{ loc.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="sort" class="form-select">
+                    <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name</option>
+                    <option value="quantity" {% if sort_by == 'quantity' %}selected{% endif %}>Stock (Low)</option>
+                    <option value="-quantity" {% if sort_by == '-quantity' %}selected{% endif %}>Stock (High)</option>
+                    <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price (Low)</option>
+                    <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price (High)</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Apply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-modern">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Specs</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'product_detail' product.pk %}" class="fw-bold text-decoration-none">
+                                {{ product.name }}
+                            </a>
+                            <br>
+                            <small class="text-muted">{{ product.sku }}</small>
+                        </td>
+                        <td>{{ product.category.name }}</td>
+                        <td>
+                            <small>
+                                {% if product.diameter %}{{ product.diameter }}{% endif %}
+                                {% if product.length %} × {{ product.length }}{% endif %}
+                                {% if product.grade %}<br>Grade: {{ product.grade.name }}{% endif %}
+                            </small>
+                        </td>
+                        <td>
+                            {% if product.quantity == 0 %}
+                            <span class="badge-soft badge-soft-danger">Out</span>
+                            {% elif product.is_low_stock %}
+                            <span class="badge-soft badge-soft-warning">{{ product.quantity }}</span>
+                            {% else %}
+                            <span class="badge-soft badge-soft-success">{{ product.quantity }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold">${{ product.selling_price|floatformat:2 }}</td>
+                        <td>{{ product.location.name|default:"-" }}</td>
+                        <td>
+                            {% if product.is_low_stock %}
+                            <span class="badge-soft badge-soft-warning">Low Stock</span>
+                            {% else %}
+                            <span class="badge-soft badge-soft-success">In Stock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'product_detail' product.pk %}" class="btn btn-sm btn-light" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'admin:inventory_product_change' product.pk %}" class="btn btn-sm btn-light" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                            <h5>No Products Found</h5>
+                            <a href="{% url 'admin:inventory_product_add' %}" class="btn btn-primary mt-2">Add Product</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if products.has_other_pages %}
+        <div class="p-3 border-top">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in products.paginator.page_range %}
+                    <li class="page-item {% if products.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

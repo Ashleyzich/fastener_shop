@@ -1,0 +1,47 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}New Purchase Order{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">New Purchase Order</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Supplier *</label>
+                            <select name="supplier" class="form-select" required>
+                                <option value="">Select Supplier...</option>
+                                {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Expected Date</label>
+                            <input type="date" name="expected_date" class="form-control">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea name="notes" class="form-control" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'purchase_list' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Stock Adjustment{% endblock %}
+{% block page_title %}Stock Adjustment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">ADJUST STOCK</h6>
+                <form method="post" action="{% url 'process_stock_adjustment' %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Product *</label>
+                        <select name="product_id" class="form-select" required>
+                            <option value="">Select Product...</option>
+                            {% for product in products %}
+                            <option value="{{ product.id }}">
+                                {{ product.name }} {{ product.diameter }} {{ product.length }}
+                                ({{ product.quantity }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Type *</label>
+                        <select name="adjustment_type" class="form-select" required>
+                            <option value="ADD">Add Stock (+)</option>
+                            <option value="REMOVE">Remove Stock (-)</option>
+                            <option value="SET">Set Exact</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Quantity *</label>
+                        <input type="number" name="quantity" class="form-control" min="0.01" step="0.01" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Reason</label>
+                        <textarea name="reason" class="form-control" rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        Apply Adjustment
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Recent Adjustments -->
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">RECENT ADJUSTMENTS</h6>
+                {% for adj in recent_adjustments %}
+                <div class="d-flex justify-content-between mb-2">
+                    <div>
+                        <strong>{{ adj.product.name }}</strong>
+                        <br>
+                        <small class="text-muted">{{ adj.created_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+                    <div class="text-end">
+                        {% if adj.movement_type == 'IN' %}
+                        <span class="text-success">+{{ adj.quantity }}</span>
+                        {% elif adj.movement_type == 'OUT' %}
+                        <span class="text-danger">-{{ adj.quantity }}</span>
+                        {% else %}
+                        <span class="text-info">{{ adj.quantity }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                {% empty %}
+                <p class="text-muted text-center">No adjustments yet</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-muted mb-0">ALL PRODUCTS</h6>
+                    <form method="get">
+                        <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ search_query }}">
+                    </form>
+                </div>
+                
+                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                    <table class="table">
+                        <thead class="bg-light" style="position: sticky; top: 0;">
+                            <tr>
+                                <th>Product</th>
+                                <th>Stock</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td>
+                                    <strong>{{ product.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ product.diameter }} {{ product.length }}</small>
+                                </td>
+                                <td>{{ product.quantity }}</td>
+                                <td>{{ product.location.name|default:"-" }}</td>
+                                <td>
+                                    {% if product.quantity == 0 %}
+                                    <span class="badge bg-danger">Out</span>
+                                    {% elif product.is_low_stock %}
+                                    <span class="badge bg-warning">Low</span>
+                                    {% else %}
+                                    <span class="badge bg-success">OK</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

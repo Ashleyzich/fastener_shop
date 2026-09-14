@@ -1,0 +1,81 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Sale {{ sale.invoice_number }}{% endblock %}
+{% block page_title %}{{ sale.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <span class="badge bg-success">{{ sale.status }}</span>
+    <div class="d-flex gap-2">
+        <a href="{% url 'print_receipt' sale.pk %}" class="btn btn-primary" target="_blank">
+            <i class="fas fa-print"></i> Receipt
+        </a>
+        <a href="{% url 'sale_list' %}" class="btn btn-light">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">ITEMS</h6>
+                <table class="table">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.product.name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ item.product.diameter }} {{ item.product.length }}</small>
+                            </td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.unit_price|floatformat:2 }}</td>
+                            <td class="fw-bold">${{ item.total_price|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <th colspan="3" class="text-end">Total:</th>
+                            <th>${{ sale.total_amount|floatformat:2 }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">SALE INFORMATION</h6>
+                <div class="mb-3">
+                    <strong>Invoice:</strong><br>{{ sale.invoice_number }}
+                </div>
+                <div class="mb-3">
+                    <strong>Customer:</strong><br>{{ sale.customer.name }}
+                </div>
+                <div class="mb-3">
+                    <strong>Date:</strong><br>{{ sale.created_at|date:"Y-m-d H:i" }}
+                </div>
+                <div class="mb-3">
+                    <strong>Payment Method:</strong><br>{{ sale.payment_method }}
+                </div>
+                <div class="mb-3">
+                    <strong>Salesperson:</strong><br>{{ sale.salesperson.get_full_name|default:sale.salesperson.username }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

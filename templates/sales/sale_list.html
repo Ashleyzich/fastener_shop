@@ -1,0 +1,68 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Sales History{% endblock %}
+{% block page_title %}Sales History{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <span class="badge bg-primary">{{ sales|length }} sales</span>
+    </div>
+    <a href="{% url 'pos' %}" class="btn btn-success">
+        <i class="fas fa-cash-register"></i> New Sale
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="padding: 18px;">Invoice</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Payment</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td style="padding: 18px;">
+                            <strong>{{ sale.invoice_number }}</strong>
+                        </td>
+                        <td>{{ sale.customer.name }}</td>
+                        <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ sale.items.count }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark">{{ sale.payment_method }}</span>
+                        </td>
+                        <td class="fw-bold">${{ sale.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <a href="{% url 'sale_detail' sale.pk %}" class="btn btn-sm btn-light">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'print_receipt' sale.pk %}" class="btn btn-sm btn-light" target="_blank">
+                                <i class="fas fa-print"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                            <h5>No Sales Yet</h5>
+                            <p class="text-muted">Make your first sale</p>
+                            <a href="{% url 'pos' %}" class="btn btn-success mt-2">New Sale</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

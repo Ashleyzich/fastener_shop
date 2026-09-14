@@ -1,0 +1,128 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Purchase Orders{% endblock %}
+{% block page_title %}Purchase Orders{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{% url 'create_purchase' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Purchase Order
+    </a>
+</div>
+
+<!-- Gradient Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card gradient-1">
+            <i class="fas fa-file-invoice icon"></i>
+            <div class="label">Total Orders</div>
+            <div class="value">{{ total_orders }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-5">
+            <i class="fas fa-clock icon"></i>
+            <div class="label">Pending</div>
+            <div class="value">{{ pending_orders }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-4">
+            <i class="fas fa-check-circle icon"></i>
+            <div class="label">Received</div>
+            <div class="value">{{ received_orders }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-2">
+            <i class="fas fa-money-bill icon"></i>
+            <div class="label">Total Spent</div>
+            <div class="value">${{ total_spent|floatformat:2 }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT" {% if selected_status == 'DRAFT' %}selected{% endif %}>Draft</option>
+                    <option value="ORDERED" {% if selected_status == 'ORDERED' %}selected{% endif %}>Ordered</option>
+                    <option value="RECEIVED" {% if selected_status == 'RECEIVED' %}selected{% endif %}>Received</option>
+                    <option value="CANCELLED" {% if selected_status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Purchase Orders Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="padding: 18px;">PO Number</th>
+                        <th>Supplier</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in purchases %}
+                    <tr>
+                        <td style="padding: 18px;">
+                            <a href="{% url 'purchase_detail' purchase.pk %}" class="fw-bold text-decoration-none">
+                                {{ purchase.po_number }}
+                            </a>
+                        </td>
+                        <td>{{ purchase.supplier.name }}</td>
+                        <td>{{ purchase.order_date|date:"Y-m-d" }}</td>
+                        <td>{{ purchase.items.count }}</td>
+                        <td class="fw-bold">${{ purchase.total_amount|floatformat:2 }}</td>
+                        <td>
+                            {% if purchase.status == 'DRAFT' %}
+                            <span class="badge bg-secondary">Draft</span>
+                            {% elif purchase.status == 'ORDERED' %}
+                            <span class="badge bg-warning">Ordered</span>
+                            {% elif purchase.status == 'RECEIVED' %}
+                            <span class="badge bg-success">Received</span>
+                            {% elif purchase.status == 'CANCELLED' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'purchase_detail' purchase.pk %}" class="btn btn-sm btn-light"><i class="fas fa-eye"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fas fa-file-invoice fa-4x text-muted mb-3"></i>
+                            <h5>No Purchase Orders</h5>
+                            <a href="{% url 'create_purchase' %}" class="btn btn-primary mt-2">Create PO</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

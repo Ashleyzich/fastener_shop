@@ -1,0 +1,96 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Profit Report{% endblock %}
+{% block page_title %}Profit Report{% endblock %}
+
+{% block content %}
+<!-- Date Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <select name="report_type" class="form-select" onchange="this.form.submit()">
+                    <option value="today" {% if report_type == 'today' %}selected{% endif %}>Today</option>
+                    <option value="this_week" {% if report_type == 'this_week' %}selected{% endif %}>This Week</option>
+                    <option value="this_month" {% if report_type == 'this_month' %}selected{% endif %}>This Month</option>
+                    <option value="last_month" {% if report_type == 'last_month' %}selected{% endif %}>Last Month</option>
+                </select>
+            </div>
+            <div class="col-md-8">
+                <p class="form-control-static mt-2 text-muted">
+                    Period: {{ start_date|date:"Y-m-d" }} to {{ end_date|date:"Y-m-d" }}
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Gradient Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card gradient-1">
+            <i class="fas fa-dollar-sign icon"></i>
+            <div class="label">Revenue</div>
+            <div class="value">${{ total_revenue|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-2">
+            <i class="fas fa-shopping-cart icon"></i>
+            <div class="label">Cost</div>
+            <div class="value">${{ total_cost|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-4">
+            <i class="fas fa-chart-line icon"></i>
+            <div class="label">Gross Profit</div>
+            <div class="value">${{ gross_profit|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-5">
+            <i class="fas fa-percentage icon"></i>
+            <div class="label">Margin</div>
+            <div class="value">{{ profit_margin|floatformat:1 }}%</div>
+        </div>
+    </div>
+</div>
+
+<!-- Profit by Product -->
+<div class="card">
+    <div class="card-body">
+        <h6 class="text-muted mb-3">PROFIT BY PRODUCT</h6>
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Revenue</th>
+                        <th>Cost</th>
+                        <th>Profit</th>
+                        <th>Margin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in product_profit %}
+                    <tr>
+                        <td><strong>{{ product.name }}</strong></td>
+                        <td>{{ product.quantity }}</td>
+                        <td>${{ product.revenue|floatformat:2 }}</td>
+                        <td>${{ product.cost|floatformat:2 }}</td>
+                        <td class="fw-bold text-success">${{ product.profit|floatformat:2 }}</td>
+                        <td>{{ product.margin|floatformat:1 }}%</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No data</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

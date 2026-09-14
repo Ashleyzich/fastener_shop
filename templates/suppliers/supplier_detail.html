@@ -1,0 +1,141 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}{{ supplier.name }}{% endblock %}
+{% block page_title %}{{ supplier.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        {% if supplier.is_active %}
+        <span class="badge bg-success">Active</span>
+        {% else %}
+        <span class="badge bg-secondary">Inactive</span>
+        {% endif %}
+        {% if supplier.outstanding_balance > 0 %}
+        <span class="badge bg-danger ms-2">Owes: ${{ supplier.outstanding_balance|floatformat:2 }}</span>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'supplier_update' supplier.pk %}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+        <a href="{% url 'supplier_list' %}" class="btn btn-light">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">CONTACT INFORMATION</h6>
+                {% if supplier.company_name %}
+                <div class="mb-3">
+                    <strong>Company:</strong><br>{{ supplier.company_name }}
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <strong>Contact Person:</strong><br>{{ supplier.contact_person|default:"-" }}
+                </div>
+                <div class="mb-3">
+                    <strong>Phone:</strong><br>{{ supplier.phone|default:"-" }}
+                </div>
+                <div class="mb-3">
+                    <strong>Email:</strong><br>{{ supplier.email|default:"-" }}
+                </div>
+                <div class="mb-3">
+                    <strong>Address:</strong><br>{{ supplier.address|default:"-" }}
+                </div>
+                {% if supplier.tax_id %}
+                <div class="mb-3">
+                    <strong>Tax ID:</strong><br>{{ supplier.tax_id }}
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <strong>Payment Terms:</strong><br>{{ supplier.payment_terms|default:"-" }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">ACCOUNT SUMMARY</h6>
+                <div class="d-flex justify-content-between">
+                    <span>Outstanding:</span>
+                    {% if supplier.outstanding_balance > 0 %}
+                    <strong class="text-danger">${{ supplier.outstanding_balance|floatformat:2 }}</strong>
+                    {% else %}
+                    <strong class="text-success">$0.00</strong>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="card text-center" style="border-radius: 15px;">
+                    <div class="card-body">
+                        <h3 class="mb-0" style="color: #6366f1;">{{ total_orders }}</h3>
+                        <small class="text-muted">Total Orders</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card text-center" style="border-radius: 15px;">
+                    <div class="card-body">
+                        <h3 class="mb-0" style="color: #10b981;">${{ total_purchased|floatformat:2 }}</h3>
+                        <small class="text-muted">Total Purchased</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">PURCHASE ORDERS</h6>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>PO Number</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for purchase in recent_orders %}
+                            <tr>
+                                <td><strong>{{ purchase.po_number }}</strong></td>
+                                <td>{{ purchase.order_date|date:"Y-m-d" }}</td>
+                                <td class="fw-bold">${{ purchase.total_amount|floatformat:2 }}</td>
+                                <td>
+                                    {% if purchase.status == 'RECEIVED' %}
+                                    <span class="badge bg-success">Received</span>
+                                    {% elif purchase.status == 'ORDERED' %}
+                                    <span class="badge bg-warning">Ordered</span>
+                                    {% elif purchase.status == 'CANCELLED' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Draft</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    No purchase orders yet
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

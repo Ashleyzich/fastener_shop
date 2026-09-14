@@ -1,0 +1,89 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Inventory Report{% endblock %}
+{% block page_title %}Inventory Report{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{% url 'export_inventory_csv' %}" class="btn btn-success">
+        <i class="fas fa-download"></i> Export CSV
+    </a>
+</div>
+
+<!-- Gradient Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card gradient-1">
+            <i class="fas fa-boxes icon"></i>
+            <div class="label">Products</div>
+            <div class="value">{{ total_products }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-4">
+            <i class="fas fa-dollar-sign icon"></i>
+            <div class="label">Cost Value</div>
+            <div class="value">${{ total_stock_value|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-3">
+            <i class="fas fa-chart-line icon"></i>
+            <div class="label">Retail Value</div>
+            <div class="value">${{ total_retail_value|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card gradient-5">
+            <i class="fas fa-exclamation-triangle icon"></i>
+            <div class="label">Low Stock</div>
+            <div class="value">{{ low_stock.count }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">STOCK BY CATEGORY</h6>
+                {% for cat in category_breakdown %}
+                <div class="d-flex justify-content-between mb-2">
+                    <div>
+                        <strong>{{ cat.category__name }}</strong>
+                        <br><small class="text-muted">{{ cat.count }} products</small>
+                    </div>
+                    <strong>${{ cat.stock_value|floatformat:2 }}</strong>
+                </div>
+                <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">⚠ LOW STOCK ITEMS</h6>
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-sm">
+                        <thead class="bg-light">
+                            <tr><th>Product</th><th>Current</th><th>Threshold</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for product in low_stock %}
+                            <tr>
+                                <td><strong>{{ product.name }}</strong></td>
+                                <td><span class="text-danger fw-bold">{{ product.quantity }}</span></td>
+                                <td>{{ product.low_stock_threshold }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="text-center text-success">✓ No low stock</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

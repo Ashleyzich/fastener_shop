@@ -1,0 +1,144 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}{{ purchase.po_number }}{% endblock %}
+{% block page_title %}{{ purchase.po_number }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <span class="badge 
+            {% if purchase.status == 'RECEIVED' %}bg-success
+            {% elif purchase.status == 'ORDERED' %}bg-warning
+            {% elif purchase.status == 'CANCELLED' %}bg-danger
+            {% else %}bg-secondary{% endif %}">
+            {{ purchase.status }}
+        </span>
+    </div>
+    <div class="d-flex gap-2">
+        {% if purchase.status == 'DRAFT' or purchase.status == 'ORDERED' %}
+        <a href="{% url 'add_item_to_purchase' purchase.pk %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Item
+        </a>
+        {% endif %}
+        {% if purchase.status == 'DRAFT' %}
+        <a href="{% url 'order_purchase' purchase.pk %}" class="btn btn-warning" onclick="return confirm('Mark as ordered?')">
+            <i class="fas fa-check"></i> Order
+        </a>
+        {% endif %}
+        {% if purchase.status == 'ORDERED' %}
+        <a href="{% url 'receive_purchase' purchase.pk %}" class="btn btn-success" onclick="return confirm('Receive stock?')">
+            <i class="fas fa-box"></i> Receive Stock
+        </a>
+        {% endif %}
+        <a href="{% url 'purchase_list' %}" class="btn btn-light">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">ORDER INFORMATION</h6>
+                <div class="mb-3">
+                    <strong>Supplier:</strong><br>
+                    {{ purchase.supplier.name }}
+                </div>
+                <div class="mb-3">
+                    <strong>Order Date:</strong><br>
+                    {{ purchase.order_date|date:"Y-m-d" }}
+                </div>
+                {% if purchase.expected_date %}
+                <div class="mb-3">
+                    <strong>Expected:</strong><br>
+                    {{ purchase.expected_date|date:"Y-m-d" }}
+                </div>
+                {% endif %}
+                {% if purchase.received_date %}
+                <div class="mb-3">
+                    <strong>Received:</strong><br>
+                    {{ purchase.received_date|date:"Y-m-d" }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">TOTALS</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <strong>${{ purchase.subtotal|floatformat:2 }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tax:</span>
+                    <span>${{ purchase.tax|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Shipping:</span>
+                    <span>${{ purchase.shipping_cost|floatformat:2 }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total:</strong>
+                    <strong class="text-primary" style="font-size: 20px;">${{ purchase.total_amount|floatformat:2 }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">ITEMS</h6>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                                {% if purchase.status != 'RECEIVED' and purchase.status != 'CANCELLED' %}
+                                <th></th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.product.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ item.product.diameter }} {{ item.product.length }}</small>
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ item.unit_price|floatformat:2 }}</td>
+                                <td class="fw-bold">${{ item.total_price|floatformat:2 }}</td>
+                                {% if purchase.status != 'RECEIVED' and purchase.status != 'CANCELLED' %}
+                                <td>
+                                    <form method="post" action="{% url 'remove_item_from_purchase' item.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-light" onclick="return confirm('Remove?')">
+                                            <i class="fas fa-times text-danger"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <p class="text-muted">No items added yet</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

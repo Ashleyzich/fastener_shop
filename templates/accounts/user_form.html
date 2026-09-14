@@ -1,0 +1,90 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}{% if edit_user %}Edit User{% else %}Add User{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        {% if edit_user %}
+                            Edit User: {{ edit_user.username }}
+                        {% else %}
+                            Add New User
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if not edit_user %}
+                        <div class="mb-3">
+                            <label class="form-label">Username *</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Password *</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Confirm Password *</label>
+                                <input type="password" name="password_confirm" class="form-control" required>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" name="first_name" class="form-control" value="{{ edit_user.first_name|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" name="last_name" class="form-control" value="{{ edit_user.last_name|default:'' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ edit_user.email|default:'' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select name="role" class="form-select">
+                                <option value="CASHIER" {% if edit_user.profile.role == 'CASHIER' %}selected{% endif %}>Cashier</option>
+                                <option value="MANAGER" {% if edit_user.profile.role == 'MANAGER' %}selected{% endif %}>Manager</option>
+                                <option value="ADMIN" {% if edit_user.profile.role == 'ADMIN' %}selected{% endif %}>Administrator</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ edit_user.profile.phone|default:'' }}">
+                        </div>
+                        
+                        {% if edit_user %}
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="is_active" id="is_active" class="form-check-input" {% if edit_user.is_active %}checked{% endif %}>
+                            <label for="is_active" class="form-check-label">Active</label>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'user_list' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if edit_user %}Update User{% else %}Create User{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
